@@ -22,20 +22,22 @@ SNAKE_COLOR = (0, 255, 0)
 
 SPEED = 5
 
-DIRECTION = {(LEFT, pg.K_UP): UP,
-             (RIGHT, pg.K_UP): UP,
-             (UP, pg.K_LEFT): LEFT,
-             (DOWN, pg.K_LEFT): LEFT,
-             (DOWN, pg.K_RIGHT): RIGHT,
-             (UP, pg.K_RIGHT): RIGHT,
-             (LEFT, pg.K_DOWN): DOWN,
-             (RIGHT, pg.K_DOWN): DOWN,
-             }
+DIRECTION = {
+    (LEFT, pg.K_UP): UP,
+    (RIGHT, pg.K_UP): UP,
+    (UP, pg.K_LEFT): LEFT,
+    (DOWN, pg.K_LEFT): LEFT,
+    (DOWN, pg.K_RIGHT): RIGHT,
+    (UP, pg.K_RIGHT): RIGHT,
+    (LEFT, pg.K_DOWN): DOWN,
+    (RIGHT, pg.K_DOWN): DOWN,
+}
 
 screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
 
-pg.display.set_caption('Змейка. Выход: крестик или esc. + скорость: '
-                       'enter. - скорость: space.')
+pg.display.set_caption(
+    'Змейка. Выход: крестик или esc. + скорость: enter. - скорость: space.'
+)
 
 clock = pg.time.Clock()
 
@@ -51,8 +53,10 @@ class GameObject:
         """Peparation of a method for
         drawing an object on the playing field.
         """
-        raise NotImplementedError('You forgot to override the draw method in '
-                                  'the child class.')
+        raise NotImplementedError(
+            'You forgot to override the draw method in class '
+            f'{type(self).__name__}.'
+        )
 
     def create_rect(self, position, body_color):
         """Responsible for creating a Rect and drawing the cell."""
@@ -72,7 +76,6 @@ class Snake(GameObject):
         self.reset()
         self.next_direction = None
         self.body_color = SNAKE_COLOR
-        self.last = None
 
     def update_direction(self):
         """Updates the direction of the snake's movement."""
@@ -89,7 +92,8 @@ class Snake(GameObject):
         direction_1, direction_2 = self.direction
         self.position = (
             (head_position_1 + direction_1 * GRID_SIZE) % SCREEN_WIDTH,
-            (head_position_2 + direction_2 * GRID_SIZE) % SCREEN_HEIGHT)
+            (head_position_2 + direction_2 * GRID_SIZE) % SCREEN_HEIGHT,
+        )
         self.positions.insert(0, self.position)
 
         if len(self.positions) > self.length:
@@ -115,6 +119,7 @@ class Snake(GameObject):
         self.length = 1
         self.positions = [self.position]
         self.direction = choice((UP, DOWN, LEFT, RIGHT))
+        self.last = None
 
 
 class Apple(GameObject):
@@ -129,11 +134,11 @@ class Apple(GameObject):
     def randomize_position(self, occupied_cells):
         """Sets a random position of the apple on the playing field."""
         while True:
-            position = (
+            self.position = (
                 randint(0, (SCREEN_WIDTH - 20) // GRID_SIZE) * GRID_SIZE,
-                randint(0, (SCREEN_HEIGHT - 20) // GRID_SIZE) * GRID_SIZE)
-            if position not in occupied_cells:
-                self.position = position
+                randint(0, (SCREEN_HEIGHT - 20) // GRID_SIZE) * GRID_SIZE,
+            )
+            if self.position not in occupied_cells:
                 break
 
     def draw(self):
@@ -158,7 +163,8 @@ def handle_keys(game_object):
                 SPEED -= 5
             else:
                 game_object.next_direction = DIRECTION.get(
-                    (game_object.direction, event.key), game_object.direction)
+                    (game_object.direction, event.key), game_object.direction
+                )
 
 
 def main():
@@ -176,7 +182,7 @@ def main():
         if snake.get_head_position() == apple.position:
             snake.length += 1
             apple.randomize_position(snake.positions)
-        elif snake.position in snake.positions[2:]:
+        elif snake.get_head_position() in snake.positions[4:]:
             screen.fill(BOARD_BACKGROUND_COLOR)
             snake.reset()
 
